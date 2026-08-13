@@ -1,0 +1,8 @@
+# aiops-agent 依赖清单（已在 Windows + Python 3.13 虚拟环境验证）
+openai==2.53.0
+python-dotenv==1.2.2
+langchain-openai==1.4.2
+langchain-core==1.5.3
+kubernetes==36.0.3
+gradio==6.23.1
+scikit-learn==1.9.0

@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiops-agent"
+version = "0.1.0"
+description = "基于 LangChain + DeepSeek 的 Kubernetes 智能运维 Agent，支持语义化查询与 RAG 增强自动诊断"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "hbqingfeng", email = "2184708509@qq.com" }]
+keywords = ["kubernetes", "langchain", "llm-agent", "devops", "rag", "deepseek"]
+dependencies = [
+    "openai",
+    "python-dotenv",
+    "langchain-openai",
+    "langchain-core",
+    "kubernetes",
+    "gradio",
+    "scikit-learn",
+]
+
+[project.optional-dependencies]
+# 联网环境可启用真·bge 中文 embedding（默认用本地 TF-IDF，离线可用）
+rag = ["chromadb", "sentence-transformers"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]

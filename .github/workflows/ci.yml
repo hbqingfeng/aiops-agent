@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install lightweight deps
+        # 测试为纯逻辑测试（不调用 LLM / 不连 K8s），无需安装 chromadb、sentence-transformers 等重型模型库
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest openai python-dotenv langchain-openai langchain-core kubernetes gradio scikit-learn
+
+      - name: Run tests
+        run: pytest -q

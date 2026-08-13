@@ -1,0 +1,36 @@
+# 虚拟环境
+venv/
+.venv/
+
+# 密钥（含真实 API key，严禁提交）
+.env
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# 测试 / 覆盖率缓存
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Gradio 本地运行态
+.gradio/
+
+# 向量库（RAG 索引，本地生成）
+chroma/
+chroma.sqlite3
+
+# 打包产物
+*.egg-info/
+build/
+dist/
+
+# 系统 / 编辑器
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
