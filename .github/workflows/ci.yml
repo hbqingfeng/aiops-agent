@@ -8,6 +8,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      # 纯逻辑测试不调用 LLM，但 stage4_agent.py 导入时会实例化 ChatOpenAI，需要 key 占位
+      DEEPSEEK_API_KEY: sk-dummy-ci-only
     steps:
       - uses: actions/checkout@v4
 
