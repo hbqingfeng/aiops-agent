@@ -77,7 +77,7 @@ copy .env.example .env
 > `.env` 已被 `.gitignore` 忽略，不会提交到 GitHub，Key 不会泄露。
 
 ### 4. （可选）RAG 知识库
-`kb.md` 已内置 12 个排障主题；首次调用诊断时会自动构建本地索引，无需额外操作。
+`kb.md` 已内置 10 个排障主题；首次调用诊断时会自动构建本地索引，无需额外操作。
 
 ---
 
@@ -181,19 +181,13 @@ aiops-agent/
 ├── stage4_agent.py        # 核心：工具定义 + 安全层 + 诊断闭环 + 命令行入口
 ├── stage5_web.py          # Gradio 网页界面
 ├── rag.py                 # RAG 知识库检索（本地 TF-IDF）
-├── kb.md                  # 知识库（12 个 K8s 排障主题）
+├── kb.md                  # 知识库（10 个 K8s 排障主题）
 ├── crash-test.yaml        # 演示用崩溃 Pod
 ├── tests/
 │   └── test_tools.py      # pytest 纯逻辑测试（9 项）
-└── archive/               # 阶段1~3 练习草稿（学习过程留存，非核心）
-    ├── first_call.py
-    ├── chat_bot.py
-    ├── stage2_agent.py
-    ├── stage2_tools.py
-    └── stage3_agent.py
 ```
 
-> **工程化**：`pyproject.toml` 声明项目元数据与代码规范（ruff/black）；`Makefile` 封装常用命令；`.github/workflows/ci.yml` 在每次 push/PR 自动运行 `pytest`。`archive/` 仅保留学习轨迹，核心代码为 `stage4_agent.py` / `stage5_web.py` / `rag.py`。
+> **工程化**：`pyproject.toml` 声明项目元数据与代码规范（ruff/black）；`Makefile` 封装常用命令（`install`/`web`/`cli`/`test`/`clean`）；`.github/workflows/ci.yml` 在每次 push/PR 自动运行 `pytest`。核心代码为 `stage4_agent.py` / `stage5_web.py` / `rag.py`。
 
 ---
 

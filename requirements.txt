@@ -6,3 +6,4 @@ langchain-core==1.5.3
 kubernetes==36.0.3
 gradio==6.23.1
 scikit-learn==1.9.0
+pytest==9.1.1

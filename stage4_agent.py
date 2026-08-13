@@ -6,14 +6,16 @@ Deployment 扩缩容与重启，以及综合诊断工具 troubleshoot（聚合�
 
 模型：DeepSeek（OpenAI 兼容接口）。
 """
-from dotenv import load_dotenv
-import os
 import ast
-from datetime import datetime
-from langchain_openai import ChatOpenAI
-from langchain_core.tools import tool
-from langchain_core.messages import SystemMessage, HumanMessage, ToolMessage
+import os
+from collections import defaultdict
+from datetime import datetime, timezone
+
+from dotenv import load_dotenv
 from kubernetes import client, config
+from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
+from langchain_core.tools import tool
+from langchain_openai import ChatOpenAI
 
 load_dotenv()
 
@@ -128,7 +130,7 @@ def restart_service(name: str, namespace: str = "default") -> str:
         return "K8s 未连接：请先启动本地集群"
     # 给 Deployment 的 pod template 打一个 restartedAt 注解，K8s 会据此触发滚动重启
     patch = {"spec": {"template": {"metadata": {
-        "annotations": {"kubectl.kubernetes.io/restartedAt": datetime.now().isoformat()}
+        "annotations": {"kubectl.kubernetes.io/restartedAt": datetime.now(timezone.utc).isoformat()}
     }}}}
     apps_v1.patch_namespaced_deployment(name=name, namespace=namespace, body=patch)
     return f"已触发 deployment/{name}（命名空间 {namespace}）滚动重启"
@@ -163,7 +165,6 @@ def get_all_pods() -> str:
     pods = v1.list_pod_for_all_namespaces()
     if not pods.items:
         return "集群中没有任何 Pod"
-    from collections import defaultdict
     by_ns = defaultdict(list)
     for p in pods.items:
         by_ns[p.metadata.namespace].append(f"{p.metadata.name}({_pod_status(p)})")

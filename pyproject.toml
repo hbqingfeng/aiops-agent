@@ -29,6 +29,10 @@ rag = ["chromadb", "sentence-transformers"]
 line-length = 100
 target-version = "py310"
 
+[tool.ruff.lint]
+# BLE001 / S110：Agent 对外部工具调用的异常统一兜底为友好文本，属有意设计，非疏漏
+ignore = ["BLE001", "S110"]
+
 [tool.black]
 line-length = 100
 target-version = ["py310"]

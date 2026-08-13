@@ -8,16 +8,18 @@
 """
 import os
 import re
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 _DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-def _load_chunks(path: str = None):
+def _load_chunks(path: str | None = None):
     """按二级标题（## ）把知识库切成多个片段，每个片段是一个检索单元。"""
     path = path or os.path.join(_DIR, "kb.md")
-    text = open(path, encoding="utf-8").read()
+    with open(path, encoding="utf-8") as f:
+        text = f.read()
     parts = re.split(r"(?m)^## ", text)
     chunks = []
     for i, p in enumerate(parts[1:], 1):
@@ -29,7 +31,7 @@ def _load_chunks(path: str = None):
 class KbRetriever:
     """本地 TF-IDF 检索器：启动时把知识库向量化，检索时算余弦相似度取 top_k。"""
 
-    def __init__(self, path: str = None):
+    def __init__(self, path: str | None = None):
         chunks = _load_chunks(path)
         self.titles = [c["title"] for c in chunks]
         self.texts = [c["text"] for c in chunks]
@@ -59,7 +61,7 @@ def _get():
     return _retriever
 
 
-def build_index(path: str = None):
+def build_index(path: str | None = None):
     """（重新）构建索引；首次运行或知识库更新后调用。"""
     global _retriever
     _retriever = KbRetriever(path)

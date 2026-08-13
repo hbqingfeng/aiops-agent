@@ -4,11 +4,8 @@ import sys
 # 让 tests/ 下的用例能 import 到项目根目录的 stage4_agent / rag
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import types
 import importlib
-
-import pytest
-
+import types
 
 # --- 纯逻辑测试：不依赖真实集群 / 不消耗 API / 不要求联网 ---
 

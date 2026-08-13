@@ -7,10 +7,15 @@
 """
 import gradio as gr
 from langchain_core.messages import HumanMessage, ToolMessage
+
 # 复用阶段四写好的全部能力：工具、模型、安全层开关
 from stage4_agent import (
-    tools, tool_map, llm_with_tools, K8S_OK, DANGEROUS_TOOLS, SYSTEM_PROMPT,
+    DANGEROUS_TOOLS,
+    SYSTEM_PROMPT,
+    llm_with_tools,
+    tool_map,
 )
+
 
 def web_agent(message: str, history=None) -> str:
     """Gradio 聊天接口：用户提问 -> Agent 思考/调工具 -> 返回回答 + 工具调用过程。"""
