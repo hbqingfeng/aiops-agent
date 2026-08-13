@@ -10,7 +10,7 @@ import importlib
 import pytest
 
 
-# ---- 纯逻辑测试：不依赖真实集群、不消耗 API、不要求联网 ----
+# --- 纯逻辑测试：不依赖真实集群 / 不消耗 API / 不要求联网 ---
 
 def test_rag_retrieve_hits_relevant_chunk():
     from rag import retrieve

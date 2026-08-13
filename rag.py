@@ -1,7 +1,11 @@
-# rag.py —— RAG 知识库检索：把 kb.md 做成本地向量库，诊断时检索权威排障片段
-# 说明：运行环境无法访问外网下载深度学习 embedding 模型（HuggingFace/DockerHub 均不通），
-#       因此采用纯本地 scikit-learn TF-IDF（字符级 n-gram）做检索。
-#       优点：零外部依赖、离线可用、确定可靠；中文用 char n-gram 无需分词即可良好匹配技术术语。
+"""RAG 知识库检索模块。
+
+把 kb.md 切分为多个主题片段，构建本地 TF-IDF 向量索引，诊断时检索权威排障片段。
+
+说明：运行环境无法访问外网下载深度学习 embedding 模型（HuggingFace / DockerHub 均不通），
+因此采用纯本地 scikit-learn TF-IDF（字符级 n-gram）做检索。
+优点：零外部依赖、离线可用、确定可靠；中文用 char n-gram 无需分词即可良好匹配技术术语。
+"""
 import os
 import re
 from sklearn.feature_extraction.text import TfidfVectorizer

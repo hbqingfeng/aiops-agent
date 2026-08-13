@@ -1,4 +1,11 @@
-# stage4_agent.py —— 阶段四：扩展真实工具 + 加安全层
+"""AI 运维助手（K8s）—— 阶段四核心模块。
+
+封装真实的 Kubernetes 运维工具集，并提供安全层（写操作白名单 + 人工确认）。
+工具覆盖：Pod 查询 / 日志 / 详情 / 事件、节点状态、Service / Ingress 网络、
+Deployment 扩缩容与重启，以及综合诊断工具 troubleshoot（聚合多源数据 + RAG 知识库增强）。
+
+模型：DeepSeek（OpenAI 兼容接口）。
+"""
 from dotenv import load_dotenv
 import os
 import ast
@@ -15,7 +22,7 @@ load_dotenv()
 for _proxy_key in ("HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy"):
     os.environ.pop(_proxy_key, None)
 
-# ---- 0) 连上你本机的 K8s 集群 ----
+# --- 1. 连接本机 K8s 集群 ---
 try:
     config.load_kube_config()           # 读 C:\Users\你的用户\.kube\config
     v1 = client.CoreV1Api()             # 操作 Pod / Service / Node 的客户端
@@ -29,10 +36,10 @@ except Exception as e:
     K8S_OK = False
     print(f"警告：未能加载 kube config（{e}）。请先启动本地 kind 集群。")
 
-# ---- 安全层配置：哪些工具是「写操作」，执行前必须人工确认 ----
+# --- 2. 安全层：写操作白名单 ---
 DANGEROUS_TOOLS = {"restart_service", "scale_deployment"}
 
-# ---- 系统提示：强制中文 + 强制用工具查实时数据 ----
+# --- 3. 系统提示词（System Prompt）---
 SYSTEM_PROMPT = SystemMessage(content="""你是 Kubernetes 运维助手，必须用中文回答用户问题。
 规则：
 1. 当用户询问 Pod、日志、节点状态、重启服务时，必须调用对应工具获取实时数据，禁止凭训练记忆编造。
@@ -43,7 +50,7 @@ SYSTEM_PROMPT = SystemMessage(content="""你是 Kubernetes 运维助手，必须
 6. 当用户问"为什么起不来/排查/诊断/怎么回事/怎么修复"等诊断类问题时，必须先调用 troubleshoot 收集该 Pod 的多源数据（详情+事件+日志），再输出三段式报告：①根因分析 ②修复建议 ③可选执行命令（涉及写操作的只给 kubectl 命令，绝不自动执行）。
 7. 回答要简洁，给出关键状态和结论即可。""")
 
-# ---- 1) 只读工具 ----
+# --- 4. 只读工具 ---
 def _pod_status(p) -> str:
     """返回 Pod 更细的状态：优先取容器等待/终止的原因（如 CrashLoopBackOff），否则取 phase。"""
     for c in (p.status.container_statuses or []):
@@ -111,7 +118,7 @@ def get_node_status() -> str:
     return "节点状态：" + " ".join(lines)
 
 
-# ---- 2) 写操作工具（受安全层保护）----
+# --- 5. 写操作工具（受安全层保护）---
 @tool
 def restart_service(name: str, namespace: str = "default") -> str:
     """重启指定命名空间下的某个 Deployment，触发滚动重启以生效新配置或恢复异常。
@@ -127,7 +134,7 @@ def restart_service(name: str, namespace: str = "default") -> str:
     return f"已触发 deployment/{name}（命名空间 {namespace}）滚动重启"
 
 
-# ---- 常见 K8s 错误中文速查表 ----
+# --- 6. K8s 常见错误中文速查表 ---
 ERROR_HINTS = {
     "CrashLoopBackOff": "容器反复崩溃重启：通常是应用启动报错、退出码非 0、或依赖服务连不上。看日志末尾的应用报错。",
     "ImagePullBackOff": "镜像拉取失败：镜像名写错、仓库需登录、或本地没有该镜像。检查 Pod 的 image 字段与镜像仓库权限。",
@@ -311,7 +318,7 @@ tools = [get_pods, query_logs, get_node_status, restart_service, get_all_pods,
          describe_pod, get_events, scale_deployment, get_services, get_ingress, troubleshoot]
 tool_map = {t.name: t for t in tools}
 
-# ---- 3) 模型（DeepSeek，OpenAI 接口兼容）----
+# --- 7. 大语言模型（DeepSeek，OpenAI 兼容接口）---
 llm = ChatOpenAI(
     model="deepseek-chat",
     api_key=os.getenv("DEEPSEEK_API_KEY"),
@@ -319,7 +326,7 @@ llm = ChatOpenAI(
 )
 llm_with_tools = llm.bind_tools(tools)
 
-# ---- 4) 主循环（含安全层：危险操作先问人；支持多轮工具调用）----
+# --- 8. 命令行主循环（多轮工具调用 + 写操作人工确认）---
 def run_agent(question: str, max_rounds: int = 5) -> str:
     messages = [SYSTEM_PROMPT, HumanMessage(content=question)]
     for _ in range(max_rounds):
@@ -331,7 +338,7 @@ def run_agent(question: str, max_rounds: int = 5) -> str:
         for call in ai_msg.tool_calls:
             name = call["name"]
             args = call["args"]
-            # —— 安全层：写操作需人工确认 ——
+            # 安全层：写操作需人工确认
             if name in DANGEROUS_TOOLS:
                 print(f"\n⚠️ 危险操作预警：模型请求执行 {name}({args})")
                 confirm = input("这是写操作，确认执行吗？（输入 y 确认，其他键取消）：").strip().lower()
@@ -340,7 +347,7 @@ def run_agent(question: str, max_rounds: int = 5) -> str:
                     print(f"[已拦截] {result}")
                     messages.append(ToolMessage(content=result, tool_call_id=call["id"]))
                     continue
-            # —— 正常执行工具 ——
+            # 正常执行工具
             result = tool_map[name].invoke(args)
             print(f"[调用工具] {name}({args}) -> {result}")
             messages.append(ToolMessage(content=str(result), tool_call_id=call["id"]))

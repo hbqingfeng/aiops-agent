@@ -1,4 +1,10 @@
-# stage5_web.py —— 阶段五：给 AI 运维助手套一个网页聊天界面（Gradio）
+"""AI 运维助手（K8s）—— 阶段五网页界面。
+
+基于 Gradio 为阶段四的 Agent 套一层网页聊天界面：
+- 复用 stage4_agent 的全部工具 / 模型 / 安全层开关；
+- 网页版默认拦截写操作（DANGEROUS_TOOLS），仅命令行版可人工确认执行；
+- 通过自定义 CSS / JS 修复 AI 思考时出现的双滚动条，保留右下角 processing 计时。
+"""
 import gradio as gr
 from langchain_core.messages import HumanMessage, ToolMessage
 # 复用阶段四写好的全部能力：工具、模型、安全层开关
