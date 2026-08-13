@@ -287,16 +287,18 @@ def troubleshoot(namespace: str = "default", pod_name: str = "") -> str:
         if not targets:
             return f"命名空间 {namespace} 下没有处于异常状态（非 Running）的 Pod，无需诊断"
     # 2) 逐个聚合三源数据
+    #    事件拉取只需一次：get_events 返回的是整个命名空间的事件流（不按 Pod 过滤），
+    #    放在循环外拉取并复用，避免多个异常 Pod 时重复请求同一份全量事件。
+    try:
+        evs = get_events.invoke({"namespace": namespace})
+    except Exception as e:
+        evs = f"（无法获取事件：{e}）"
     sections = []
     for name in targets:
         try:
             desc = describe_pod.invoke({"namespace": namespace, "pod_name": name})
         except Exception as e:
             desc = f"（无法获取详情：{e}）"
-        try:
-            evs = get_events.invoke({"namespace": namespace})
-        except Exception as e:
-            evs = f"（无法获取事件：{e}）"
         try:
             logs = query_logs.invoke({"namespace": namespace, "pod_name": name})
         except Exception as e:
