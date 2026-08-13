@@ -168,22 +168,32 @@ kubectl apply -f crash-test.yaml   # 用节点已有镜像 + 错误启动参数�
 
 ```
 aiops-agent/
-├── README.md              # 本文件
-├── requirements.txt       # 依赖清单
+├── README.md              # 项目文档（含架构图）
+├── pyproject.toml         # 项目元数据 + ruff/black 配置
+├── requirements.txt       # 依赖清单（锁版本）
+├── Makefile               # 一键命令（install/web/cli/test/clean）
+├── LICENSE                # MIT
 ├── .env.example           # Key 模板（复制为 .env 填真实值）
 ├── .gitignore
-├── first_call.py          # 阶段1：最小 LLM 调用
-├── chat_bot.py            # 阶段1：多轮对话
-├── stage2_tools.py        # 阶段2：@tool 装饰器
-├── stage2_agent.py        # 阶段2：假工具 Agent 循环
-├── stage3_agent.py        # 阶段3：接入真实 K8s
-├── stage4_agent.py        # 阶段4+：完整工具 + 安全层 + 诊断闭环
-├── stage5_web.py          # 阶段5：Gradio 网页界面
+├── .github/
+│   └── workflows/
+│       └── ci.yml         # GitHub Actions 自动跑 pytest
+├── stage4_agent.py        # 核心：工具定义 + 安全层 + 诊断闭环 + 命令行入口
+├── stage5_web.py          # Gradio 网页界面
 ├── rag.py                 # RAG 知识库检索（本地 TF-IDF）
 ├── kb.md                  # 知识库（12 个 K8s 排障主题）
 ├── crash-test.yaml        # 演示用崩溃 Pod
-└── venv/                  # 虚拟环境（已忽略）
+├── tests/
+│   └── test_tools.py      # pytest 纯逻辑测试（9 项）
+└── archive/               # 阶段1~3 练习草稿（学习过程留存，非核心）
+    ├── first_call.py
+    ├── chat_bot.py
+    ├── stage2_agent.py
+    ├── stage2_tools.py
+    └── stage3_agent.py
 ```
+
+> **工程化**：`pyproject.toml` 声明项目元数据与代码规范（ruff/black）；`Makefile` 封装常用命令；`.github/workflows/ci.yml` 在每次 push/PR 自动运行 `pytest`。`archive/` 仅保留学习轨迹，核心代码为 `stage4_agent.py` / `stage5_web.py` / `rag.py`。
 
 ---
 
