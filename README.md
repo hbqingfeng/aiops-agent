@@ -7,7 +7,7 @@
 
 ---
 
-## ✨ 功能亮点
+## 功能亮点
 
 - **自然语言运维**：用中文直接问“哪个 Pod 崩溃了？”“为什么起不来？”，Agent 自动调用工具查真实集群数据，而不是凭训练记忆瞎编。
 - **11 个运维工具**：覆盖 Pod / 日志 / 事件 / 节点 / 详情 / 服务 / 入口 / 全集群巡检 / 滚动重启 / 扩缩容 / 综合诊断。
@@ -18,7 +18,7 @@
 
 ---
 
-## 🏗️ 架构
+## 架构
 
 ```mermaid
 flowchart LR
@@ -49,7 +49,7 @@ flowchart LR
 
 ---
 
-## 📦 环境准备
+## 环境准备
 
 ### 1. 本地 K8s 集群（kind）
 本项目操作的是你本地的 kind 集群（不需要云上集群）。
@@ -82,7 +82,7 @@ copy .env.example .env
 
 ---
 
-## 🚀 运行
+## 运行
 
 > **前置检查**（确保以下成立再运行）：
 > 1. Docker Desktop 已启动；2. `kind get clusters` 能看到 `aiops`；3. 已 `copy .env.example .env` 并填入 Key。
@@ -102,7 +102,7 @@ venv\Scripts\python.exe stage5_web.py
 
 ---
 
-## 🧰 工具清单（11 个）
+## 工具清单（11 个）
 
 | 工具 | 类型 | 作用 | 对应 kubectl |
 |---|---|---|---|
@@ -120,7 +120,7 @@ venv\Scripts\python.exe stage5_web.py
 
 ---
 
-## 🔐 安全模型
+## 安全模型
 
 - **写操作白名单**：`DANGEROUS_TOOLS = {restart_service, scale_deployment}`。
 - **网页版**：任何写操作直接拦截并返回提示，引导用户走命令行版——避免浏览器暴露后被他人误触你的集群。
@@ -129,7 +129,7 @@ venv\Scripts\python.exe stage5_web.py
 
 ---
 
-## 🧠 RAG 知识库说明
+## RAG 知识库说明
 
 `rag.py` 把 `kb.md` 切成多个主题片段，用 **scikit-learn TF-IDF（字符级 n-gram）** 做本地向量检索：
 
@@ -139,7 +139,7 @@ venv\Scripts\python.exe stage5_web.py
 
 ---
 
-## 💬 示例对话
+## 示例对话
 
 **问**：`default 下哪个 Pod 是 CrashLoopBackOff？`
 **答**：调用 `get_pods(status="CrashLoopBackOff")` → `[default] crash-demo(CrashLoopBackOff)`
@@ -154,7 +154,7 @@ venv\Scripts\python.exe stage5_web.py
 
 ---
 
-## 🧪 测试
+## 测试
 
 纯逻辑测试（不依赖真实集群、不消耗 API）：
 ```bash
@@ -169,7 +169,7 @@ kubectl apply -f crash-test.yaml   # 用节点已有镜像 + 错误启动参数�
 
 ---
 
-## 📁 目录结构
+## 目录结构
 
 ```
 aiops-agent/
@@ -198,7 +198,7 @@ aiops-agent/
 
 ---
 
-## ⚠️ 故障排查
+## 故障排查
 
 | 现象 | 原因 | 解决 |
 |---|---|---|
@@ -210,7 +210,7 @@ aiops-agent/
 
 ---
 
-## 📌 后续可扩展
+## 后续可扩展
 
 - 接 Prometheus 做资源监控（CPU/内存/请求率）。
 - 用 sentence-transformers `bge-small-zh` 替换 TF-IDF 提升 RAG 召回。
