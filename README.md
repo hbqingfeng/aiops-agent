@@ -2,6 +2,8 @@
 
 基于 **LangChain + DeepSeek** 的 Kubernetes 智能运维助手。用自然语言查询、排查你的 K8s 集群，自动聚合多源数据做根因分析，并内置 RAG 知识库辅助诊断。
 
+📚 更多文档：[技术详解 TECHNICAL.md](docs/TECHNICAL.md)（架构 / 工具设计 / 安全层 / RAG / 踩坑记录）
+
 
 ---
 
@@ -81,6 +83,10 @@ copy .env.example .env
 ---
 
 ## 🚀 运行
+
+> **前置检查**（确保以下成立再运行）：
+> 1. Docker Desktop 已启动；2. `kind get clusters` 能看到 `aiops`；3. 已 `copy .env.example .env` 并填入 Key。
+> 若只想看效果，直接跑**网页版**即可（只读，不会改动你的集群）。
 
 **命令行版**（支持写操作，执行前需输入 `y` 确认）：
 ```bash
@@ -177,6 +183,8 @@ aiops-agent/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml         # GitHub Actions 自动跑 pytest
+├── docs/
+│   └── TECHNICAL.md       # 技术详解（架构/工具设计/安全层/RAG/踩坑）
 ├── stage4_agent.py        # 核心：工具定义 + 安全层 + 诊断闭环 + 命令行入口
 ├── stage5_web.py          # Gradio 网页界面
 ├── rag.py                 # RAG 知识库检索（本地 TF-IDF）
